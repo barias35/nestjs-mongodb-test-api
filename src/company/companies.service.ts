@@ -13,12 +13,22 @@ export class CompaniesService {
 
 
   async getCompanies() {
-    const companies = await this.companyModel.find().exec();
+    var rowsCount = 0
+    this.companyModel.estimatedDocumentCount({}, function (err, count) {
+      if (err) {
+        console.log('Error: ' + err)
+      }
+
+      rowsCount = count - 10
+
+      console.log('Rows: ' + rowsCount)
+    })
+    const companies = await this.companyModel.find().skip(rowsCount).exec();
     return companies.map(comp => ({
       name: comp.name,
       email_address: comp.email_address,
       description: comp.description,
-      "image.available_sizes": comp.image.available_sizes
+      available_sizes: comp.image.available_sizes
     }));
   }
 
@@ -29,7 +39,7 @@ export class CompaniesService {
       name: company.name,
       description: company.description,
       email_address: company.email_address,
-      "image.available_sizes": company.image.available_sizes
+      available_sizes: company.image.available_sizes
     };
   }
 
